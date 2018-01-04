@@ -1,0 +1,59 @@
+# PRESTASHOP
+# -------------------------- #
+
+prestashop:
+    build: ./.docker/prestashop
+    ports:
+      - "8080:80"
+    environment:
+      - PS_DEV_MODE=1
+      - PS_INSTALL_AUTO=0
+    volumes_from:
+      - busybox
+    links:
+      - mysql
+    env_file:
+      - .dockerenv
+
+# MYSQL
+# -------------------------- #
+
+mysql:
+    build: .docker/mysql
+    volumes:
+      - ./.data/mysql:/var/lib/mysql:rw
+      - ./.data:/.data:rw
+    env_file:
+      - .dockerenv
+
+# PHPMYADMIN
+# -------------------------- #
+
+pma:
+    image: phpmyadmin/phpmyadmin
+    env_file:
+      - .dockerenv
+    environment:
+      - PMA_HOST=mysql
+    ports:
+      - 8081:80
+    links:
+      - mysql
+
+# BUSYBOX
+# -------------------------- #
+
+busybox:
+    image: busybox
+    volumes:
+        - .:/var/www/html
+
+# TOOLS
+# -------------------------- #
+
+tools:
+    build: ./.docker/tools
+    volumes_from:
+      - busybox
+    env_file:
+      - .dockerenv
